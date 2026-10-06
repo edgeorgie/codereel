@@ -13,7 +13,7 @@ export default function Player({ comp }: { comp: Composition }) {
 
   useEffect(() => {
     const ctx = canvasRef.current?.getContext("2d");
-    if (ctx) drawFrame(ctx, comp, Math.min(time, duration));
+    if (ctx) drawFrame(ctx, comp, Math.min(time, Math.max(0, duration - 0.001)));
   }, [comp, time, duration]);
 
   useEffect(() => {
