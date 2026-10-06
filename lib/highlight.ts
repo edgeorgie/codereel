@@ -1,4 +1,4 @@
-export type TokenKind = "plain" | "comment" | "string" | "number" | "keyword" | "function";
+export type TokenKind = "plain" | "comment" | "string" | "number" | "keyword" | "function" | "add" | "del";
 
 export interface Token {
   text: string;
@@ -34,4 +34,15 @@ export function tokenizeLine(line: string): Token[] {
   }
   if (last < line.length) tokens.push({ text: line.slice(last), kind: "plain" });
   return tokens;
+}
+
+/** Tokens for one line: diff lines are colored by their first character, everything else is highlighted as code. */
+export function lineTokens(line: string, lang?: string): Token[] {
+  if (lang === "diff") {
+    if (line.startsWith("+") && !line.startsWith("+++")) return [{ text: line, kind: "add" }];
+    if (line.startsWith("-") && !line.startsWith("---")) return [{ text: line, kind: "del" }];
+    if (line.startsWith("@@")) return [{ text: line, kind: "comment" }];
+    return [{ text: line, kind: "plain" }];
+  }
+  return tokenizeLine(line);
 }

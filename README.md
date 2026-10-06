@@ -8,6 +8,7 @@ Turn code into short animated videos from the browser. Paste a snippet, preview 
 - Four themes, syntax highlighting and adjustable typing speed
 - Animated code snippet with a typing effect and a title card
 - Generate a snippet from a short description with your own API key (Anthropic or OpenAI), called from the browser and never stored on a server
+- Import a snippet from a GitHub file link (with line range) or a commit diff, public repos only
 - Live preview with play, pause and a scrubber
 - MP4 export in the browser (H.264 via WebCodecs), up to 60 seconds
 - Compositions use HyperFrames-style HTML (a stage with timed `.clip` elements), so they stay portable
