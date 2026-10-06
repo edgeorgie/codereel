@@ -16,7 +16,7 @@ A self-assessment against a reviewer's rubric. It states gaps plainly so a revie
 | Accessibility | Partial | The canvas preview has no text alternative; controls are labeled and keyboard reachable. Not audited with automated tooling. |
 | Performance | Partial | Frame drawing is synchronous per frame; long compositions use more memory, bounded by the 60 second cap. Not measured with Lighthouse. |
 | Security | Partial | The key lives in localStorage, so any script injection on the origin could read it. Baseline security headers are set (nosniff, frame denial, referrer and permissions policies). No Content Security Policy is configured. |
-| Deployment | Gap | Not deployed yet. A Vercel deploy button is in the README. |
+| Deployment | Pass | Live on GitHub Pages at https://edgeorgie.github.io/codereel/. The deployed build was loaded in a browser and its main flow was exercised. |
 | Licensing | Pass | MIT. Third-party: mediabunny (MPL-2.0). |
 
 ## Verify it yourself
