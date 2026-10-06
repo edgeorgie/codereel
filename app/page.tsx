@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import AiPanel from "@/components/AiPanel";
 import Player from "@/components/Player";
 import { canExportMp4, exportMp4 } from "@/lib/export";
 import { THEMES } from "@/lib/render";
@@ -22,6 +23,7 @@ export default function Home() {
   const [aspect, setAspect] = useState("wide");
   const [theme, setTheme] = useState("midnight");
   const [speed, setSpeed] = useState(25);
+  const [lang, setLang] = useState("ts");
   const [progress, setProgress] = useState<number | null>(null);
   const [exportError, setExportError] = useState("");
   const [supported, setSupported] = useState(true);
@@ -31,8 +33,8 @@ export default function Home() {
   }, []);
 
   const comp = useMemo(
-    () => snippetComposition(code, { lang: "ts", title, aspect, theme, charsPerSecond: speed }),
-    [code, title, aspect, theme, speed],
+    () => snippetComposition(code, { lang, title, aspect, theme, charsPerSecond: speed }),
+    [code, lang, title, aspect, theme, speed],
   );
   const errors = validate(comp);
   const preset = ASPECTS.find((a) => a.key === aspect) ?? ASPECTS[0];
@@ -76,6 +78,13 @@ export default function Home() {
 
         <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
           <section className="flex flex-col gap-4">
+            <AiPanel
+              onResult={(r) => {
+                setTitle(r.title);
+                setCode(r.code);
+                setLang(r.lang);
+              }}
+            />
             <div className={card}>
               <span className={label}>Format</span>
               <div className="grid grid-cols-2 gap-2">
