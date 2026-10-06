@@ -15,6 +15,7 @@ export interface Composition {
   width: number;
   height: number;
   fps: number;
+  theme?: string;
   clips: Clip[];
 }
 
@@ -63,7 +64,33 @@ export function validate(comp: Composition): string[] {
   return errors;
 }
 
-export function snippetComposition(code: string, lang = "ts", title = ""): Composition {
+export interface AspectPreset {
+  key: string;
+  label: string;
+  hint: string;
+  width: number;
+  height: number;
+}
+
+export const ASPECTS: AspectPreset[] = [
+  { key: "wide", label: "16:9", hint: "YouTube", width: 1920, height: 1080 },
+  { key: "vertical", label: "9:16", hint: "Reels, TikTok, Shorts", width: 1080, height: 1920 },
+  { key: "square", label: "1:1", hint: "Feed", width: 1080, height: 1080 },
+  { key: "portrait", label: "4:5", hint: "Instagram, LinkedIn", width: 1080, height: 1350 },
+];
+
+export interface SnippetOptions {
+  lang?: string;
+  title?: string;
+  aspect?: string;
+  theme?: string;
+  charsPerSecond?: number;
+}
+
+export function snippetComposition(code: string, opts: SnippetOptions | string = {}, titleArg = ""): Composition {
+  const o: SnippetOptions = typeof opts === "string" ? { lang: opts, title: titleArg } : opts;
+  const { lang = "ts", title = "", aspect = "wide", theme = "midnight", charsPerSecond = 25 } = o;
+  const preset = ASPECTS.find((a) => a.key === aspect) ?? ASPECTS[0];
   const clips: Clip[] = [];
   if (title) {
     clips.push({ id: "title", type: "text", start: 0, duration: 2, track: 1, content: title });
@@ -73,10 +100,10 @@ export function snippetComposition(code: string, lang = "ts", title = ""): Compo
     id: "code",
     type: "code",
     start: offset,
-    duration: Math.min(MAX_DURATION - offset, Math.max(3, code.length / 25)),
+    duration: Math.min(MAX_DURATION - offset, Math.max(3, code.length / Math.max(1, charsPerSecond))),
     track: 0,
     content: code,
     lang,
   });
-  return { id: "snippet", width: 1920, height: 1080, fps: 30, clips };
+  return { id: "snippet", width: preset.width, height: preset.height, fps: 30, theme, clips };
 }
