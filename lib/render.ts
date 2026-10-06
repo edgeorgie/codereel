@@ -1,5 +1,5 @@
 import { activeClips, clipProgress, typedText } from "./scene.ts";
-import { tokenizeLine } from "./highlight.ts";
+import { lineTokens } from "./highlight.ts";
 import type { Clip, Composition } from "./scene.ts";
 import type { TokenKind } from "./highlight.ts";
 
@@ -31,7 +31,7 @@ export const THEMES: Theme[] = [
     text: "#d6deeb",
     muted: "#5c6785",
     accent: "#7aa2f7",
-    tokens: { plain: "#d6deeb", comment: "#637099", string: "#9ece6a", number: "#ff9e64", keyword: "#bb9af7", function: "#7dcfff" },
+    tokens: { plain: "#d6deeb", comment: "#637099", string: "#9ece6a", number: "#ff9e64", keyword: "#bb9af7", function: "#7dcfff", add: "#4ade80", del: "#f87171" },
   },
   {
     key: "aurora",
@@ -45,7 +45,7 @@ export const THEMES: Theme[] = [
     text: "#d5f2ee",
     muted: "#4f7f7c",
     accent: "#2dd4bf",
-    tokens: { plain: "#d5f2ee", comment: "#4f7f7c", string: "#a3e635", number: "#fbbf24", keyword: "#38bdf8", function: "#5eead4" },
+    tokens: { plain: "#d5f2ee", comment: "#4f7f7c", string: "#a3e635", number: "#fbbf24", keyword: "#38bdf8", function: "#5eead4", add: "#4ade80", del: "#f87171" },
   },
   {
     key: "sunset",
@@ -59,7 +59,7 @@ export const THEMES: Theme[] = [
     text: "#fde7ee",
     muted: "#8a5a6e",
     accent: "#fb7185",
-    tokens: { plain: "#fde7ee", comment: "#8a5a6e", string: "#fcd34d", number: "#fb923c", keyword: "#f472b6", function: "#fda4af" },
+    tokens: { plain: "#fde7ee", comment: "#8a5a6e", string: "#fcd34d", number: "#fb923c", keyword: "#f472b6", function: "#fda4af", add: "#4ade80", del: "#f87171" },
   },
   {
     key: "paper",
@@ -73,7 +73,7 @@ export const THEMES: Theme[] = [
     text: "#2b2b33",
     muted: "#9a9488",
     accent: "#d9480f",
-    tokens: { plain: "#2b2b33", comment: "#9a9488", string: "#2f9e44", number: "#d9480f", keyword: "#7048e8", function: "#1971c2" },
+    tokens: { plain: "#2b2b33", comment: "#9a9488", string: "#2f9e44", number: "#d9480f", keyword: "#7048e8", function: "#1971c2", add: "#2f9e44", del: "#e03131" },
   },
 ];
 
@@ -205,7 +205,7 @@ function drawCode(ctx: Ctx, comp: Composition, clip: Clip, t: number, theme: The
     ctx.fillStyle = theme.muted;
     ctx.fillText(String(startIndex + i + 1), x0, y);
     let x = x0 + gutter;
-    for (const tok of tokenizeLine(line)) {
+    for (const tok of lineTokens(line, clip.lang)) {
       ctx.fillStyle = theme.tokens[tok.kind];
       ctx.fillText(tok.text, x, y);
       x += ctx.measureText(tok.text).width;

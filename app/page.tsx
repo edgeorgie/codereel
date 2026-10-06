@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import AiPanel from "@/components/AiPanel";
+import ImportPanel from "@/components/ImportPanel";
 import Player from "@/components/Player";
 import { canExportMp4, exportMp4 } from "@/lib/export";
 import { THEMES } from "@/lib/render";
@@ -78,6 +79,13 @@ export default function Home() {
 
         <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
           <section className="flex flex-col gap-4">
+            <ImportPanel
+              onResult={(r) => {
+                setTitle(r.title);
+                setCode(r.code);
+                setLang(r.lang);
+              }}
+            />
             <AiPanel
               onResult={(r) => {
                 setTitle(r.title);
