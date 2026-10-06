@@ -64,10 +64,10 @@ export default function Home() {
   return (
     <div className="flex h-screen min-h-[640px] flex-col">
       <header className="flex items-center justify-between gap-4 border-b border-line px-5 py-3">
-        <span className="wordmark flex items-center gap-2 text-lg">
+        <h1 className="wordmark flex items-center gap-2 text-lg">
           <span className="tick h-2.5 w-2.5 rounded-full bg-lime" />
           codereel
-        </span>
+        </h1>
 
         <div className="relative grid grid-cols-4 rounded-full bg-panel p-1 ring-1 ring-line" role="tablist" aria-label="Video format">
           <span
@@ -98,7 +98,7 @@ export default function Home() {
         </button>
       </header>
 
-      <div className="grid min-h-0 flex-1 lg:grid-cols-[1fr_380px]">
+      <div role="main" className="grid min-h-0 flex-1 lg:grid-cols-[1fr_380px]">
         <section className="h-[64vh] min-h-[440px] min-w-0 lg:h-auto">
           <Player comp={comp} />
         </section>
