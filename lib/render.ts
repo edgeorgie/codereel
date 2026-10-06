@@ -25,7 +25,7 @@ function ease(p: number): number {
 
 function drawText(ctx: Ctx, comp: Composition, clip: Clip, t: number, theme: Theme) {
   const p = clipProgress(clip, t);
-  const fade = Math.min(1, p / 0.15, (1 - p) / 0.15);
+  const fade = Math.min(1, 0.3 + p / 0.15, (1 - p) / 0.15);
   ctx.save();
   ctx.globalAlpha = Math.max(0, fade);
   ctx.fillStyle = theme.text;
