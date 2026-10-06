@@ -16,7 +16,7 @@ A self-assessment against a reviewer's rubric. It states gaps plainly so a revie
 | Accessibility | Partial | The canvas preview has no text alternative; controls are labeled and keyboard reachable. Not audited with automated tooling. |
 | Performance | Partial | Frame drawing is synchronous per frame; long compositions use more memory, bounded by the 60 second cap. Not measured with Lighthouse. |
 | Security | Partial | The key lives in sessionStorage by default and in localStorage only if the user opts in. Baseline security headers are set on a Node host. The Pages export carries a CSP meta tag (headers and frame-ancestors are not possible on Pages). |
-| Deployment | Pass | Live on GitHub Pages at https://edgeorgie.github.io/codereel/. The deployed build was loaded in a browser and its main flow was exercised. |
+| Deployment | Pass | Live on Vercel at https://codereel.vercel.app, with security headers served by the host. The main flow was exercised on the deployed site. |
 | Licensing | Pass | MIT. Third-party: mediabunny (MPL-2.0). |
 
 ## Verify it yourself
