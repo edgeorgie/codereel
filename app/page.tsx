@@ -63,13 +63,13 @@ export default function Home() {
 
   return (
     <div className="flex h-screen min-h-[640px] flex-col">
-      <header className="flex items-center justify-between gap-4 border-b border-line px-5 py-3">
+      <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-b border-line px-5 py-3">
         <h1 className="wordmark flex items-center gap-2 text-lg">
           <span className="tick h-2.5 w-2.5 rounded-full bg-lime" />
           codereel
         </h1>
 
-        <div className="relative grid grid-cols-4 rounded-full bg-panel p-1 ring-1 ring-line" role="tablist" aria-label="Video format">
+        <div className="relative order-last grid w-full grid-cols-4 rounded-full bg-panel p-1 ring-1 ring-line sm:order-none sm:w-auto" role="tablist" aria-label="Video format">
           <span
             className="absolute inset-y-1 left-1 rounded-full bg-lime transition-transform duration-500 ease-[cubic-bezier(0.34,1.4,0.64,1)]"
             style={{ width: "calc((100% - 0.5rem) / 4)", transform: `translateX(${aspectIndex * 100}%)` }}
@@ -91,7 +91,7 @@ export default function Home() {
         <button
           onClick={onExport}
           disabled={errors.length > 0 || progress !== null || !supported}
-          className="relative overflow-hidden rounded-full bg-text px-5 py-2.5 text-sm font-bold text-bg transition hover:bg-lime active:scale-95 disabled:opacity-60"
+          className="relative overflow-hidden whitespace-nowrap rounded-full bg-text px-5 py-2.5 text-sm font-bold text-bg transition hover:bg-lime active:scale-95 disabled:opacity-60"
         >
           {progress !== null && <span className="absolute inset-y-0 left-0 bg-lime transition-all" style={{ width: `${progress * 100}%` }} />}
           <span className="relative">{progress === null ? `Export  ${compositionDuration(comp).toFixed(0)}s` : `${Math.round(progress * 100)}%`}</span>

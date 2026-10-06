@@ -62,12 +62,32 @@ Status: Implemented, not verified end to end.
 
 - Given a description and a provider key, when the user generates, then title, language and code fill the editor.
 - Given a malformed model reply, then an error is shown instead of corrupting the editor.
+- Given a provider key, then it is kept in sessionStorage for the tab by default, kept on the device only when the user ticks "Remember on this device", and removable with "Clear key".
 
 ### FR-7 Import from GitHub
 
 Status: Verified.
 
 - Given a file link with a line range or a commit link to a public repo, when imported, then the editor shows those lines or the diff with added and removed lines colored.
+
+### FR-8 Keyboard shortcuts respect focused controls
+
+Status: Verified.
+
+- Given a focused button, tab or field, when Space is pressed, then the control activates natively and playback is not toggled; Space toggles playback only when no control has focus.
+- Given an import in progress, when Enter is pressed again in the link field, then no second request starts.
+
+### FR-9 Narrow screens keep the format selector usable
+
+Status: Verified.
+
+- Given a 375 px viewport, then the four format buttons are fully legible and the Export button stays on one line.
+
+### FR-10 Content Security Policy on the static export
+
+Status: Verified.
+
+- Given the Pages export, then every page carries a Content-Security-Policy meta tag that allows scripts only from the site and from the hashes of its inline scripts, and connections only to the site, api.anthropic.com, api.openai.com, api.github.com and raw.githubusercontent.com.
 
 ## Open risks
 

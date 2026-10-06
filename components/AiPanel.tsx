@@ -1,25 +1,54 @@
 "use client";
 
 import { useState } from "react";
+import KeyNotes from "@/components/KeyNotes";
+import { clearKeys, readKeys, writeKeys } from "@/lib/keystore";
 import { PROVIDERS, complete } from "@/lib/llm";
 import type { Provider } from "@/lib/llm";
 import { SCENE_SYSTEM_PROMPT, parseSnippet } from "@/lib/promptScene";
 import type { SnippetResult } from "@/lib/promptScene";
 
-const KEY_STORE = "codereel.llm";
+const SETTINGS = "codereel.llm";
+const KEY = "codereel.llm.key";
+const HOSTS: Record<Provider, string> = { anthropic: "api.anthropic.com", openai: "api.openai.com" };
 
-function load(): { provider: Provider; key: string } {
+interface Settings {
+  provider: Provider;
+  key: string;
+  remember: boolean;
+}
+
+function load(): Settings {
+  const settings: Settings = { provider: "anthropic", key: "", remember: false };
   try {
-    const raw = localStorage.getItem(KEY_STORE);
-    if (raw) return JSON.parse(raw) as { provider: Provider; key: string };
+    const raw = localStorage.getItem(SETTINGS);
+    if (raw) {
+      const stored = JSON.parse(raw) as { provider?: Provider; key?: string };
+      if (stored.provider) settings.provider = stored.provider;
+      if (stored.key) {
+        sessionStorage.setItem(KEY, JSON.stringify({ key: stored.key }));
+        localStorage.setItem(SETTINGS, JSON.stringify({ provider: settings.provider }));
+      }
+    }
+    const keys = readKeys<{ key: string }>(KEY, sessionStorage, localStorage);
+    settings.key = keys.value?.key ?? "";
+    settings.remember = keys.remember;
   } catch {}
-  return { provider: "anthropic", key: "" };
+  return settings;
+}
+
+function persist(next: Settings) {
+  try {
+    localStorage.setItem(SETTINGS, JSON.stringify({ provider: next.provider }));
+    if (next.key) writeKeys(KEY, { key: next.key }, next.remember, sessionStorage, localStorage);
+    else clearKeys(KEY, sessionStorage, localStorage);
+  } catch {}
 }
 
 const field = "w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm outline-none transition focus:border-lime";
 
 export default function AiPanel({ onResult }: { onResult: (r: SnippetResult) => void }) {
-  const [settings, setSettings] = useState<{ provider: Provider; key: string }>({ provider: "anthropic", key: "" });
+  const [settings, setSettings] = useState<Settings>({ provider: "anthropic", key: "", remember: false });
   const [loaded, setLoaded] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [busy, setBusy] = useState(false);
@@ -30,11 +59,9 @@ export default function AiPanel({ onResult }: { onResult: (r: SnippetResult) => 
     Promise.resolve().then(() => setSettings(load()));
   }
 
-  const save = (next: { provider: Provider; key: string }) => {
+  const save = (next: Settings) => {
     setSettings(next);
-    try {
-      localStorage.setItem(KEY_STORE, JSON.stringify(next));
-    } catch {}
+    persist(next);
   };
 
   const generate = async () => {
@@ -62,8 +89,9 @@ export default function AiPanel({ onResult }: { onResult: (r: SnippetResult) => 
             <option key={k} value={k}>{v.label}</option>
           ))}
         </select>
-        <input type="password" value={settings.key} onChange={(e) => save({ ...settings, key: e.target.value })} placeholder="API key (stays in this browser)" className={field} />
+        <input type="password" value={settings.key} onChange={(e) => save({ ...settings, key: e.target.value })} placeholder="API key" className={field} />
       </div>
+      <KeyNotes host={HOSTS[settings.provider]} remember={settings.remember} hasKey={Boolean(settings.key)} onRemember={(remember) => save({ ...settings, remember })} onClear={() => save({ ...settings, key: "" })} />
       <button
         onClick={generate}
         disabled={busy || !prompt.trim() || !settings.key}
