@@ -10,6 +10,7 @@ export default function ImportPanel({ onResult }: { onResult: (r: ImportedSnippe
   const [error, setError] = useState("");
 
   const run = async () => {
+    if (busy) return;
     setError("");
     const ref = parseGithubUrl(url);
     if (!ref) {

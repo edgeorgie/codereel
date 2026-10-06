@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { handlesOwnKeys } from "@/lib/keys";
 import { drawFrame } from "@/lib/render";
 import { compositionDuration } from "@/lib/scene";
 import type { Composition } from "@/lib/scene";
@@ -41,8 +42,8 @@ export default function Player({ comp }: { comp: Composition }) {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement).tagName;
-      if (e.code === "Space" && tag !== "TEXTAREA" && tag !== "INPUT") {
+      const el = e.target as HTMLElement;
+      if (e.code === "Space" && !handlesOwnKeys(el.tagName, el.getAttribute("role"), el.isContentEditable)) {
         e.preventDefault();
         setPlaying((p) => !p);
       }

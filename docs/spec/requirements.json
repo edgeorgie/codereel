@@ -84,15 +84,18 @@
     "status": "Implemented, not verified end to end",
     "acceptance": [
       "Given a description and a provider key, when the user generates, then title, language and code fill the editor.",
-      "Given a malformed model reply, then an error is shown instead of corrupting the editor."
+      "Given a malformed model reply, then an error is shown instead of corrupting the editor.",
+      "Given a provider key, then it is kept in sessionStorage for the tab by default, kept on the device only when the user ticks \"Remember on this device\", and removable with \"Clear key\"."
     ],
     "implementation": [
       "lib/promptScene.ts",
       "lib/llm.ts",
+      "lib/keystore.ts",
       "components/AiPanel.tsx"
     ],
     "tests": [
-      "tests/promptScene.test.ts"
+      "tests/promptScene.test.ts",
+      "tests/keystore.test.ts"
     ],
     "evidence": "PR 6: parser tests for fences, extra text and invalid JSON. Not run against a real provider."
   },
@@ -111,5 +114,52 @@
       "tests/github.test.ts"
     ],
     "evidence": "PR 7: verified against the real GitHub API in Chrome with a file range and a commit."
+  },
+  {
+    "id": "FR-8",
+    "title": "Keyboard shortcuts respect focused controls",
+    "status": "Verified",
+    "acceptance": [
+      "Given a focused button, tab or field, when Space is pressed, then the control activates natively and playback is not toggled; Space toggles playback only when no control has focus.",
+      "Given an import in progress, when Enter is pressed again in the link field, then no second request starts."
+    ],
+    "implementation": [
+      "lib/keys.ts",
+      "components/Player.tsx",
+      "components/ImportPanel.tsx"
+    ],
+    "tests": [
+      "tests/keys.test.ts"
+    ],
+    "evidence": "In Chrome, Space on the focused Look tab opens it and playback keeps running (QA BUG-003)."
+  },
+  {
+    "id": "FR-9",
+    "title": "Narrow screens keep the format selector usable",
+    "status": "Verified",
+    "acceptance": [
+      "Given a 375 px viewport, then the four format buttons are fully legible and the Export button stays on one line."
+    ],
+    "implementation": [
+      "app/page.tsx"
+    ],
+    "tests": [],
+    "evidence": "manual: in Chrome at 375 px the selector takes its own row (QA BUG-004)."
+  },
+  {
+    "id": "FR-10",
+    "title": "Content Security Policy on the static export",
+    "status": "Verified",
+    "acceptance": [
+      "Given the Pages export, then every page carries a Content-Security-Policy meta tag that allows scripts only from the site and from the hashes of its inline scripts, and connections only to the site, api.anthropic.com, api.openai.com, api.github.com and raw.githubusercontent.com."
+    ],
+    "implementation": [
+      "scripts/csp.mjs",
+      "scripts/deploy-pages.mjs"
+    ],
+    "tests": [
+      "tests/csp.test.ts"
+    ],
+    "evidence": "Hash and policy tests; published site checked in Chrome after deploy (SEC-001)."
   }
 ]
