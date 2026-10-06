@@ -176,7 +176,11 @@ function drawCode(ctx: Ctx, comp: Composition, clip: Clip, t: number, theme: The
     ctx.arc(margin + bar * 0.5 + i * bar * 0.4, margin + bar / 2, bar * 0.13, 0, Math.PI * 2);
     ctx.fill();
   });
-  const fontSize = Math.round(base * 0.034);
+  let fontSize = Math.round(base * 0.034);
+  ctx.font = `${fontSize}px ui-monospace, Menlo, Consolas, monospace`;
+  const avail = w - fontSize * 4.2;
+  const longest = Math.max(...clip.content.split("\n").map((l) => ctx.measureText(l).width));
+  if (longest > avail) fontSize = Math.max(Math.round(base * 0.034 * 0.55), Math.floor((fontSize * avail) / longest));
   ctx.font = `${Math.round(fontSize * 0.7)}px ui-monospace, Menlo, Consolas, monospace`;
   ctx.textAlign = "right";
   ctx.textBaseline = "middle";

@@ -15,16 +15,20 @@ export async function deploy(app: string) {
   return publish(app, { env: "production", retries: 3 });
 }`;
 
-const card = "rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur";
-const label = "mb-2 block text-xs font-medium uppercase tracking-wider text-zinc-400";
+const TABS = ["Content", "Look", "Import", "AI"] as const;
+type Tab = (typeof TABS)[number];
+
+const field = "w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm outline-none transition focus:border-lime";
+const label = "mb-1.5 block text-[11px] font-semibold uppercase tracking-widest text-muted";
 
 export default function Home() {
   const [code, setCode] = useState(SAMPLE);
   const [title, setTitle] = useState("Deploy in one line");
+  const [lang, setLang] = useState("ts");
   const [aspect, setAspect] = useState("wide");
   const [theme, setTheme] = useState("midnight");
   const [speed, setSpeed] = useState(25);
-  const [lang, setLang] = useState("ts");
+  const [tab, setTab] = useState<Tab>("Content");
   const [progress, setProgress] = useState<number | null>(null);
   const [exportError, setExportError] = useState("");
   const [supported, setSupported] = useState(true);
@@ -33,12 +37,11 @@ export default function Home() {
     Promise.resolve().then(() => setSupported(canExportMp4()));
   }, []);
 
-  const comp = useMemo(
-    () => snippetComposition(code, { lang, title, aspect, theme, charsPerSecond: speed }),
-    [code, lang, title, aspect, theme, speed],
-  );
+  const comp = useMemo(() => snippetComposition(code, { lang, title, aspect, theme, charsPerSecond: speed }), [code, lang, title, aspect, theme, speed]);
   const errors = validate(comp);
   const preset = ASPECTS.find((a) => a.key === aspect) ?? ASPECTS[0];
+  const aspectIndex = Math.max(0, ASPECTS.findIndex((a) => a.key === aspect));
+  const tabIndex = TABS.indexOf(tab);
 
   const onExport = async () => {
     setExportError("");
@@ -59,145 +62,115 @@ export default function Home() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#07080d] text-zinc-100">
-      <div className="pointer-events-none absolute -left-40 -top-40 h-[480px] w-[480px] rounded-full bg-blue-500/20 blur-[120px]" />
-      <div className="pointer-events-none absolute -right-40 top-40 h-[420px] w-[420px] rounded-full bg-violet-500/20 blur-[120px]" />
-      <main className="relative mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-10">
-        <header className="flex flex-col gap-2">
-          <div className="flex items-center gap-3">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-blue-400 to-violet-500 font-mono text-lg font-bold shadow-lg shadow-violet-500/30">
-              {"</>"}
-            </div>
-            <h1 className="bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-3xl font-bold tracking-tight text-transparent">
-              codereel
-            </h1>
+    <div className="flex h-screen min-h-[640px] flex-col">
+      <header className="flex items-center justify-between gap-4 border-b border-line px-5 py-3">
+        <span className="wordmark flex items-center gap-2 text-lg">
+          <span className="tick h-2.5 w-2.5 rounded-full bg-lime" />
+          codereel
+        </span>
+
+        <div className="relative grid grid-cols-4 rounded-full bg-panel p-1 ring-1 ring-line" role="tablist" aria-label="Video format">
+          <span
+            className="absolute inset-y-1 left-1 rounded-full bg-lime transition-transform duration-500 ease-[cubic-bezier(0.34,1.4,0.64,1)]"
+            style={{ width: "calc((100% - 0.5rem) / 4)", transform: `translateX(${aspectIndex * 100}%)` }}
+          />
+          {ASPECTS.map((a) => (
+            <button
+              key={a.key}
+              role="tab"
+              aria-selected={aspect === a.key}
+              onClick={() => setAspect(a.key)}
+              title={a.hint}
+              className={`relative z-10 px-3 py-1.5 font-mono text-xs font-semibold transition-colors sm:px-5 ${aspect === a.key ? "text-bg" : "text-muted hover:text-text"}`}
+            >
+              {a.label}
+            </button>
+          ))}
+        </div>
+
+        <button
+          onClick={onExport}
+          disabled={errors.length > 0 || progress !== null || !supported}
+          className="relative overflow-hidden rounded-full bg-text px-5 py-2.5 text-sm font-bold text-bg transition hover:bg-lime active:scale-95 disabled:opacity-60"
+        >
+          {progress !== null && <span className="absolute inset-y-0 left-0 bg-lime transition-all" style={{ width: `${progress * 100}%` }} />}
+          <span className="relative">{progress === null ? `Export  ${compositionDuration(comp).toFixed(0)}s` : `${Math.round(progress * 100)}%`}</span>
+        </button>
+      </header>
+
+      <div className="grid min-h-0 flex-1 lg:grid-cols-[1fr_380px]">
+        <section className="h-[64vh] min-h-[440px] min-w-0 lg:h-auto">
+          <Player comp={comp} />
+        </section>
+
+        <aside className="flex min-h-0 flex-col border-t border-line bg-panel lg:border-l lg:border-t-0">
+          <div className="relative grid grid-cols-4 border-b border-line">
+            {TABS.map((t) => (
+              <button key={t} onClick={() => setTab(t)} className={`py-3.5 text-[13px] font-semibold transition-colors ${tab === t ? "text-text" : "text-muted hover:text-text"}`}>
+                {t}
+              </button>
+            ))}
+            <span className="absolute bottom-0 left-0 h-0.5 w-1/4 bg-lime transition-transform duration-300" style={{ transform: `translateX(${tabIndex * 100}%)` }} />
           </div>
-          <p className="max-w-xl text-sm text-zinc-400">
-            Paste code, pick a format and a look, export a video. Everything runs in your browser.
-          </p>
-        </header>
 
-        <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
-          <section className="flex flex-col gap-4">
-            <ImportPanel
-              onResult={(r) => {
-                setTitle(r.title);
-                setCode(r.code);
-                setLang(r.lang);
-              }}
-            />
-            <AiPanel
-              onResult={(r) => {
-                setTitle(r.title);
-                setCode(r.code);
-                setLang(r.lang);
-              }}
-            />
-            <div className={card}>
-              <span className={label}>Format</span>
-              <div className="grid grid-cols-2 gap-2">
-                {ASPECTS.map((a) => (
-                  <button
-                    key={a.key}
-                    onClick={() => setAspect(a.key)}
-                    className={`group flex items-center gap-3 rounded-xl border px-3 py-2 text-left transition ${
-                      aspect === a.key
-                        ? "border-violet-400/60 bg-violet-500/15 shadow-lg shadow-violet-500/10"
-                        : "border-white/10 bg-white/[0.03] hover:border-white/25"
-                    }`}
-                  >
-                    <span
-                      className="block rounded-[3px] border border-white/40 bg-white/10"
-                      style={{
-                        width: a.width >= a.height ? 22 : (22 * a.width) / a.height,
-                        height: a.height >= a.width ? 22 : (22 * a.height) / a.width,
-                      }}
-                    />
-                    <span className="flex flex-col">
-                      <span className="text-sm font-semibold">{a.label}</span>
-                      <span className="text-[10px] leading-tight text-zinc-400">{a.hint}</span>
-                    </span>
-                  </button>
-                ))}
+          <div className="min-h-0 flex-1 overflow-y-auto p-5">
+            {tab === "Content" && (
+              <div key="content" className="fade-in flex flex-col gap-5">
+                <div>
+                  <label className={label} htmlFor="title">Title</label>
+                  <input id="title" value={title} onChange={(e) => setTitle(e.target.value)} className={field} />
+                </div>
+                <div>
+                  <label className={label} htmlFor="code">Code</label>
+                  <textarea id="code" value={code} onChange={(e) => setCode(e.target.value)} rows={11} spellCheck={false} className={`${field} font-mono text-[13px] leading-relaxed`} />
+                </div>
+                <div>
+                  <label className={`${label} flex justify-between`} htmlFor="speed">
+                    <span>Typing speed</span>
+                    <span className="font-mono normal-case text-text">{speed} chars/s</span>
+                  </label>
+                  <input id="speed" type="range" min={8} max={80} value={speed} onChange={(e) => setSpeed(Number(e.target.value))} className="w-full accent-lime" />
+                </div>
               </div>
-            </div>
+            )}
 
-            <div className={card}>
-              <span className={label}>Look</span>
-              <div className="grid grid-cols-4 gap-2">
+            {tab === "Look" && (
+              <div key="look" className="fade-in grid grid-cols-2 gap-3">
                 {THEMES.map((t) => (
                   <button
                     key={t.key}
                     onClick={() => setTheme(t.key)}
+                    className={`group overflow-hidden rounded-xl text-left ring-1 transition hover:-translate-y-0.5 ${theme === t.key ? "ring-2 ring-lime" : "ring-line"}`}
                     aria-label={t.label}
-                    className={`flex flex-col items-center gap-1.5 rounded-xl border p-2 transition ${
-                      theme === t.key ? "border-violet-400/60 bg-violet-500/10" : "border-white/10 hover:border-white/25"
-                    }`}
                   >
-                    <span
-                      className="h-8 w-full rounded-lg ring-1 ring-white/20"
-                      style={{ background: `linear-gradient(135deg, ${t.bgFrom}, ${t.accent})` }}
-                    />
-                    <span className="text-[11px] text-zinc-300">{t.label}</span>
+                    <span className="block h-20 p-3" style={{ background: `linear-gradient(135deg, ${t.bgFrom}, ${t.bgTo})` }}>
+                      <span className="flex gap-1.5">
+                        {[t.tokens.keyword, t.tokens.function, t.tokens.string, t.tokens.number].map((c, i) => (
+                          <span key={i} className="h-2 w-5 rounded-full" style={{ background: c }} />
+                        ))}
+                      </span>
+                      <span className="mt-2 block h-1.5 w-14 rounded-full" style={{ background: t.tokens.comment }} />
+                      <span className="mt-1.5 block h-1.5 w-9 rounded-full" style={{ background: t.text, opacity: 0.7 }} />
+                    </span>
+                    <span className="block bg-raise px-3 py-2 text-xs font-semibold">{t.label}</span>
                   </button>
                 ))}
               </div>
-            </div>
+            )}
 
-            <div className={card}>
-              <label className={label} htmlFor="title">Title</label>
-              <input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="mb-4 w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm outline-none transition focus:border-violet-400/60"
-              />
-              <label className={label} htmlFor="code">Code</label>
-              <textarea
-                id="code"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                rows={9}
-                spellCheck={false}
-                className="w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2 font-mono text-[13px] leading-relaxed outline-none transition focus:border-violet-400/60"
-              />
-              <label className={`${label} mt-4 flex justify-between`} htmlFor="speed">
-                <span>Typing speed</span>
-                <span className="font-mono normal-case text-zinc-300">{speed} chars/s</span>
-              </label>
-              <input
-                id="speed"
-                type="range"
-                min={8}
-                max={80}
-                value={speed}
-                onChange={(e) => setSpeed(Number(e.target.value))}
-                className="w-full accent-violet-400"
-              />
-            </div>
+            {tab === "Import" && <ImportPanel key="import" onResult={(r) => { setTitle(r.title); setCode(r.code); setLang(r.lang); setTab("Content"); }} />}
+            {tab === "AI" && <AiPanel key="ai" onResult={(r) => { setTitle(r.title); setCode(r.code); setLang(r.lang); setTab("Content"); }} />}
 
-            <button
-              onClick={onExport}
-              disabled={errors.length > 0 || progress !== null || !supported}
-              className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-500 to-violet-500 px-5 py-3.5 text-sm font-semibold shadow-xl shadow-violet-500/25 transition hover:brightness-110 active:scale-[0.99] disabled:opacity-60"
-            >
-              {progress !== null && (
-                <span className="absolute inset-y-0 left-0 bg-white/25 transition-all" style={{ width: `${progress * 100}%` }} />
-              )}
-              <span className="relative">
-                {progress === null
-                  ? `Export MP4  ·  ${preset.label}  ·  ${compositionDuration(comp).toFixed(0)}s`
-                  : `Exporting ${Math.round(progress * 100)}%`}
-              </span>
-            </button>
-            {exportError && <p className="text-sm text-red-400">{exportError}</p>}
-            {!supported && <p className="text-xs text-zinc-500">MP4 export needs Chrome or Edge.</p>}
-            {errors.length > 0 && <p className="text-sm text-red-400">{errors.join(", ")}</p>}
-          </section>
+            {exportError && <p className="mt-4 text-sm text-red-400">{exportError}</p>}
+            {!supported && <p className="mt-4 text-xs text-muted">MP4 export needs Chrome or Edge.</p>}
+            {errors.length > 0 && <p className="mt-4 text-sm text-red-400">{errors.join(", ")}</p>}
+          </div>
 
-          <Player key={`${aspect}`} comp={comp} />
-        </div>
-      </main>
+          <p className="border-t border-line px-5 py-3 font-mono text-[11px] text-muted">
+            {preset.label} &middot; {preset.hint} &middot; space plays and pauses
+          </p>
+        </aside>
+      </div>
     </div>
   );
 }
