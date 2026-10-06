@@ -1,0 +1,115 @@
+[
+  {
+    "id": "FR-1",
+    "title": "Scene model",
+    "status": "Verified",
+    "acceptance": [
+      "Given a composition, when its clips are queried at time t, then only clips active at t are returned ordered by track.",
+      "Given invalid input (duplicate ids, non-positive duration, duration over 60 s), then validation reports each problem."
+    ],
+    "implementation": [
+      "lib/scene.ts"
+    ],
+    "tests": [
+      "tests/scene.test.ts"
+    ],
+    "evidence": "PR 1: tests for activeClips, typedText and validate."
+  },
+  {
+    "id": "FR-2",
+    "title": "HyperFrames-style HTML serialization",
+    "status": "Verified",
+    "acceptance": [
+      "Given a composition, when serialized and parsed again, then clips, timing, size and theme are preserved and content is escaped."
+    ],
+    "implementation": [
+      "lib/html.ts"
+    ],
+    "tests": [
+      "tests/scene.test.ts"
+    ],
+    "evidence": "PR 1: round-trip test with special characters."
+  },
+  {
+    "id": "FR-3",
+    "title": "Deterministic canvas renderer",
+    "status": "Verified",
+    "acceptance": [
+      "Given the same composition and time, then the same frame is drawn.",
+      "Given a narrow format, then the code font shrinks so the longest line fits the panel."
+    ],
+    "implementation": [
+      "lib/render.ts",
+      "lib/highlight.ts"
+    ],
+    "tests": [
+      "tests/highlight.test.ts"
+    ],
+    "evidence": "PR 2, PR 5, PR 9: drawn frames inspected in Chrome for all four formats."
+  },
+  {
+    "id": "FR-4",
+    "title": "Social formats",
+    "status": "Verified",
+    "acceptance": [
+      "Given a format of 16:9, 9:16, 1:1 or 4:5, then the stage shows that exact ratio and the export uses its pixel size."
+    ],
+    "implementation": [
+      "lib/scene.ts",
+      "components/Player.tsx",
+      "app/page.tsx"
+    ],
+    "tests": [
+      "tests/highlight.test.ts"
+    ],
+    "evidence": "PR 9: measured stage ratios 1.778, 0.563, 1.000 and 0.800 in Chrome."
+  },
+  {
+    "id": "FR-5",
+    "title": "MP4 export in the browser",
+    "status": "Verified",
+    "acceptance": [
+      "Given a valid composition in Chrome or Edge, when the user exports, then a downloadable file with a valid MP4 header is produced and progress is shown."
+    ],
+    "implementation": [
+      "lib/export.ts",
+      "app/page.tsx"
+    ],
+    "tests": [],
+    "evidence": "manual: PR 3 and PR 9, exported MP4 inspected for the ftyp box in Chrome (about 78 KB for the sample, around 1 s)."
+  },
+  {
+    "id": "FR-6",
+    "title": "Snippet from a prompt (bring your own key)",
+    "status": "Implemented, not verified end to end",
+    "acceptance": [
+      "Given a description and a provider key, when the user generates, then title, language and code fill the editor.",
+      "Given a malformed model reply, then an error is shown instead of corrupting the editor."
+    ],
+    "implementation": [
+      "lib/promptScene.ts",
+      "lib/llm.ts",
+      "components/AiPanel.tsx"
+    ],
+    "tests": [
+      "tests/promptScene.test.ts"
+    ],
+    "evidence": "PR 6: parser tests for fences, extra text and invalid JSON. Not run against a real provider."
+  },
+  {
+    "id": "FR-7",
+    "title": "Import from GitHub",
+    "status": "Verified",
+    "acceptance": [
+      "Given a file link with a line range or a commit link to a public repo, when imported, then the editor shows those lines or the diff with added and removed lines colored."
+    ],
+    "implementation": [
+      "lib/github.ts",
+      "components/ImportPanel.tsx"
+    ],
+    "tests": [
+      "tests/github.test.ts"
+    ],
+    "evidence": "PR 7: verified against the real GitHub API in Chrome with a file range and a commit."
+  }
+]
