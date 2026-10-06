@@ -22,7 +22,7 @@ export function toHtml(comp: Composition): string {
       return `  <div class="clip" id="${escapeHtml(c.id)}" data-clip-type="${c.type}" data-start="${c.start}" data-duration="${c.duration}" data-track-index="${c.track}"${lang}>${escapeHtml(c.content)}</div>`;
     })
     .join("\n");
-  return `<div id="stage" data-composition-id="${escapeHtml(comp.id)}" data-start="0" data-width="${comp.width}" data-height="${comp.height}" data-fps="${comp.fps}">\n${clips}\n</div>`;
+  return `<div id="stage" data-composition-id="${escapeHtml(comp.id)}" data-start="0" data-width="${comp.width}" data-height="${comp.height}" data-fps="${comp.fps}"${comp.theme ? ` data-theme="${escapeHtml(comp.theme)}"` : ""}>\n${clips}\n</div>`;
 }
 
 function attr(tag: string, name: string): string | undefined {
@@ -54,6 +54,7 @@ export function fromHtml(html: string): Composition | null {
     width: Number(attr(stage[0], "data-width") ?? 1920),
     height: Number(attr(stage[0], "data-height") ?? 1080),
     fps: Number(attr(stage[0], "data-fps") ?? 30),
+    theme: attr(stage[0], "data-theme"),
     clips,
   };
 }

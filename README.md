@@ -4,6 +4,8 @@ Turn code into short animated videos from the browser. Paste a snippet, preview 
 
 ## Features
 
+- Formats for every platform: 16:9, 9:16 (Reels, TikTok, Shorts), 1:1 and 4:5
+- Four themes, syntax highlighting and adjustable typing speed
 - Animated code snippet with a typing effect and a title card
 - Live preview with play, pause and a scrubber
 - MP4 export in the browser (H.264 via WebCodecs), up to 60 seconds

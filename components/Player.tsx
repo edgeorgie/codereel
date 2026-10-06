@@ -8,7 +8,7 @@ import type { Composition } from "@/lib/scene";
 export default function Player({ comp }: { comp: Composition }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [time, setTime] = useState(0);
-  const [playing, setPlaying] = useState(false);
+  const [playing, setPlaying] = useState(true);
   const duration = compositionDuration(comp);
 
   useEffect(() => {
@@ -42,20 +42,31 @@ export default function Player({ comp }: { comp: Composition }) {
     setPlaying((p) => !p);
   };
 
+  const pct = duration > 0 ? (Math.min(time, duration) / duration) * 100 : 0;
+
   return (
-    <div className="flex flex-col gap-3">
-      <canvas
-        ref={canvasRef}
-        width={comp.width}
-        height={comp.height}
-        className="w-full rounded-lg border border-zinc-800 bg-black"
-      />
-      <div className="flex items-center gap-3">
+    <div className="flex flex-col gap-4">
+      <div className="relative flex min-h-[420px] items-center justify-center overflow-hidden rounded-3xl border border-white/10 bg-black/40 p-6 shadow-2xl shadow-black/50 backdrop-blur">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(122,162,247,0.12),transparent_60%)]" />
+        <canvas
+          ref={canvasRef}
+          width={comp.width}
+          height={comp.height}
+          style={{ aspectRatio: `${comp.width} / ${comp.height}`, maxHeight: 560 }}
+          className="relative max-w-full rounded-xl shadow-2xl shadow-black/60 ring-1 ring-white/10"
+        />
+      </div>
+      <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur">
         <button
           onClick={toggle}
-          className="rounded-md bg-blue-500 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-400"
+          aria-label={playing ? "Pause" : "Play"}
+          className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-blue-400 to-violet-500 text-white shadow-lg shadow-violet-500/30 transition hover:scale-105 active:scale-95"
         >
-          {playing ? "Pause" : "Play"}
+          {playing ? (
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><rect x="2" y="1" width="3.5" height="12" rx="1" /><rect x="8.5" y="1" width="3.5" height="12" rx="1" /></svg>
+          ) : (
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><path d="M3 1.5v11l9-5.5z" /></svg>
+          )}
         </button>
         <input
           type="range"
@@ -67,10 +78,11 @@ export default function Player({ comp }: { comp: Composition }) {
             setPlaying(false);
             setTime(Number(e.target.value));
           }}
-          className="flex-1"
+          style={{ background: `linear-gradient(to right, #8b9cf7 ${pct}%, rgba(255,255,255,0.12) ${pct}%)` }}
+          className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full accent-violet-400"
           aria-label="Timeline"
         />
-        <span className="w-24 text-right font-mono text-xs text-zinc-400">
+        <span className="w-24 text-right font-mono text-xs tabular-nums text-zinc-400">
           {time.toFixed(1)}s / {duration.toFixed(1)}s
         </span>
       </div>
