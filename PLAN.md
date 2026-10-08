@@ -1,22 +1,22 @@
 # codereel: plan
 
-Editor web de videos de codigo y devlogs. Sin instalar nada. Render en el navegador.
+Web editor for code and devlog videos. Nothing to install. Rendering happens in the browser.
 
-## Alcance
-- Plantillas: snippet de codigo animado (tipeo, resaltado de lineas, diff), changelog, tarjeta de repo.
-- Composicion en HTML con atributos data, compatible con el formato de Hyperframes.
-- Vista previa en vivo, panel simple de edicion, exportar MP4 con WebCodecs.
-- Fuera de alcance: linea de tiempo completa, audio avanzado, render en servidor.
+## Scope
+- Templates: animated code snippet (typing, line highlighting, diff), changelog, repo card.
+- Composition as HTML with data attributes, compatible with the Hyperframes format.
+- Live preview, a simple editing panel, MP4 export with WebCodecs.
+- Out of scope: full timeline, advanced audio, server-side rendering.
 
-## Entregas
-1. Semana 2: modelo de escena, reproductor con reloj determinista, plantilla de snippet, export MP4 en Chrome/Edge.
-2. Semana 3: panel de edicion (texto, tema, duracion, orden de escenas), plantillas de diff y changelog.
-3. Semana 4: escena desde prompt (BYOK), importar desde un commit o PR de GitHub, README y deploy.
+## Deliverables
+1. Week 2: scene model, player with a deterministic clock, snippet template, MP4 export in Chrome/Edge.
+2. Week 3: editing panel (text, theme, duration, scene order), diff and changelog templates.
+3. Week 4: scene from a prompt (BYOK), import from a GitHub commit or PR, README and deploy.
 
-## Riesgos
-- Safari con WebCodecs parcial: avisar y degradar.
-- Render de DOM a frames: preferir canvas 2D para el export; la vista previa puede usar DOM.
-- Memoria en videos largos: limitar a 60 s en el MVP.
+## Risks
+- Safari has partial WebCodecs support: warn and degrade.
+- Rendering DOM to frames: prefer canvas 2D for export; the preview may use the DOM.
+- Memory on long videos: limit to 60 s in the MVP.
 
-## Ramas
-GitFlow: feature/scene-model, feature/player, feature/export-mp4 desde develop.
+## Branches
+GitFlow: feature/scene-model, feature/player, feature/export-mp4 from develop.
