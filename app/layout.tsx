@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { Inter_Tight, JetBrains_Mono, Unbounded } from "next/font/google";
 import "./globals.css";
 
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
   description: "Turn code into short animated videos in your browser. 16:9, 9:16, 1:1 and 4:5.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable} h-full antialiased`}>
       <body className="min-h-full">{children}</body>
