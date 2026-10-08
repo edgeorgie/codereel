@@ -1,0 +1,165 @@
+[
+  {
+    "id": "FR-1",
+    "title": "Scene model",
+    "status": "Verified",
+    "acceptance": [
+      "Given a composition, when its clips are queried at time t, then only clips active at t are returned ordered by track.",
+      "Given invalid input (duplicate ids, non-positive duration, duration over 60 s), then validation reports each problem."
+    ],
+    "implementation": [
+      "lib/scene.ts"
+    ],
+    "tests": [
+      "tests/scene.test.ts"
+    ],
+    "evidence": "PR 1: tests for activeClips, typedText and validate."
+  },
+  {
+    "id": "FR-2",
+    "title": "HyperFrames-style HTML serialization",
+    "status": "Verified",
+    "acceptance": [
+      "Given a composition, when serialized and parsed again, then clips, timing, size and theme are preserved and content is escaped."
+    ],
+    "implementation": [
+      "lib/html.ts"
+    ],
+    "tests": [
+      "tests/scene.test.ts"
+    ],
+    "evidence": "PR 1: round-trip test with special characters."
+  },
+  {
+    "id": "FR-3",
+    "title": "Deterministic canvas renderer",
+    "status": "Verified",
+    "acceptance": [
+      "Given the same composition and time, then the same frame is drawn.",
+      "Given a narrow format, then the code font shrinks so the longest line fits the panel."
+    ],
+    "implementation": [
+      "lib/render.ts",
+      "lib/highlight.ts"
+    ],
+    "tests": [
+      "tests/highlight.test.ts"
+    ],
+    "evidence": "PR 2, PR 5, PR 9: drawn frames inspected in Chrome for all four formats."
+  },
+  {
+    "id": "FR-4",
+    "title": "Social formats",
+    "status": "Verified",
+    "acceptance": [
+      "Given a format of 16:9, 9:16, 1:1 or 4:5, then the stage shows that exact ratio and the export uses its pixel size."
+    ],
+    "implementation": [
+      "lib/scene.ts",
+      "components/Player.tsx",
+      "app/page.tsx"
+    ],
+    "tests": [
+      "tests/highlight.test.ts"
+    ],
+    "evidence": "PR 9: measured stage ratios 1.778, 0.563, 1.000 and 0.800 in Chrome."
+  },
+  {
+    "id": "FR-5",
+    "title": "MP4 export in the browser",
+    "status": "Verified",
+    "acceptance": [
+      "Given a valid composition in Chrome or Edge, when the user exports, then a downloadable file with a valid MP4 header is produced and progress is shown."
+    ],
+    "implementation": [
+      "lib/export.ts",
+      "app/page.tsx"
+    ],
+    "tests": [],
+    "evidence": "manual: PR 3 and PR 9, exported MP4 inspected for the ftyp box in Chrome (about 78 KB for the sample, around 1 s)."
+  },
+  {
+    "id": "FR-6",
+    "title": "Snippet from a prompt (bring your own key)",
+    "status": "Implemented, not verified end to end",
+    "acceptance": [
+      "Given a description and a provider key, when the user generates, then title, language and code fill the editor.",
+      "Given a malformed model reply, then an error is shown instead of corrupting the editor.",
+      "Given a provider key, then it is kept in sessionStorage for the tab by default, kept on the device only when the user ticks \"Remember on this device\", and removable with \"Clear key\"."
+    ],
+    "implementation": [
+      "lib/promptScene.ts",
+      "lib/llm.ts",
+      "lib/keystore.ts",
+      "components/AiPanel.tsx"
+    ],
+    "tests": [
+      "tests/promptScene.test.ts",
+      "tests/keystore.test.ts"
+    ],
+    "evidence": "PR 6: parser tests for fences, extra text and invalid JSON. Not run against a real provider."
+  },
+  {
+    "id": "FR-7",
+    "title": "Import from GitHub",
+    "status": "Verified",
+    "acceptance": [
+      "Given a file link with a line range or a commit link to a public repo, when imported, then the editor shows those lines or the diff with added and removed lines colored."
+    ],
+    "implementation": [
+      "lib/github.ts",
+      "components/ImportPanel.tsx"
+    ],
+    "tests": [
+      "tests/github.test.ts"
+    ],
+    "evidence": "PR 7: verified against the real GitHub API in Chrome with a file range and a commit."
+  },
+  {
+    "id": "FR-8",
+    "title": "Keyboard shortcuts respect focused controls",
+    "status": "Verified",
+    "acceptance": [
+      "Given a focused button, tab or field, when Space is pressed, then the control activates natively and playback is not toggled; Space toggles playback only when no control has focus.",
+      "Given an import in progress, when Enter is pressed again in the link field, then no second request starts."
+    ],
+    "implementation": [
+      "lib/keys.ts",
+      "components/Player.tsx",
+      "components/ImportPanel.tsx"
+    ],
+    "tests": [
+      "tests/keys.test.ts"
+    ],
+    "evidence": "In Chrome, Space on the focused Look tab opens it and playback keeps running (QA BUG-003)."
+  },
+  {
+    "id": "FR-9",
+    "title": "Narrow screens keep the format selector usable",
+    "status": "Verified",
+    "acceptance": [
+      "Given a 375 px viewport, then the four format buttons are fully legible and the Export button stays on one line."
+    ],
+    "implementation": [
+      "app/page.tsx"
+    ],
+    "tests": [],
+    "evidence": "manual: in Chrome at 375 px the selector takes its own row (QA BUG-004)."
+  },
+  {
+    "id": "FR-10",
+    "title": "Content Security Policy on the static export",
+    "status": "Verified",
+    "acceptance": [
+      "Given the Pages export, then every page carries a Content-Security-Policy meta tag that allows scripts only from the site and from the hashes of its inline scripts, and connections only to the site, api.anthropic.com, api.openai.com, api.github.com and raw.githubusercontent.com."
+    ],
+    "implementation": [
+      "scripts/csp.mjs",
+      "scripts/deploy-pages.mjs"
+    ],
+    "tests": [
+      "tests/csp.test.ts"
+    ],
+    "evidence": "Hash and policy tests; published site checked in Chrome after deploy (SEC-001)."
+  }
+]
