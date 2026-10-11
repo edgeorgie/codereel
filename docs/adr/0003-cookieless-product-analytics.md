@@ -8,11 +8,11 @@ The owner's portfolio links to codereel and wants one answer across all of its a
 
 ## Decision
 
-posthog-js, imported dynamically only when `NEXT_PUBLIC_POSTHOG_KEY` is set at build time. Cookieless (`cookieless_mode: "always"`, `person_profiles: "never"`, `identify()` never called), autocapture and session replay off, `respect_dnt` on. Events are an explicit allowlist, `$pageview`, `editor_opened` and `video_exported`, whose properties are enums, buckets and numbers; every event carries `app: "codereel"` and `surface: "web"` so one PostHog project holds every app. On a Node host events go through a same-origin `/ingest` proxy (rewrites in `next.config.ts`). The static export cannot proxy, so the Pages build reaches PostHog directly only when `NEXT_PUBLIC_POSTHOG_HOST` is set, and its CSP allows that host only then.
+posthog-js, imported dynamically only when `NEXT_PUBLIC_POSTHOG_KEY` is set at build time. Cookieless (`cookieless_mode: "always"`, `person_profiles: "never"`, `identify()` never called), autocapture and session replay off, `respect_dnt` on. Events are an explicit allowlist, `$pageview`, `editor_opened` and `video_exported`, whose properties are enums, buckets and numbers; every event carries `app: "codereel"` and `surface: "web"` so one PostHog project holds every app. On a Node host with a key, events go through a same-origin `/ingest` proxy (rewrites in `next.config.ts`) that is registered only when the key is set: a rewrite is a server-side route that exists whether or not a client calls it, so an ungated one would make every deployment forward any body posted to `/ingest/*` to PostHog's public ingestion API, an open relay on the owner's domain that costs bandwidth and attributes abuse to that origin. Without a key `/ingest/*` is a plain 404. The static export cannot proxy, so the Pages build reaches PostHog directly only when `NEXT_PUBLIC_POSTHOG_HOST` is set, and its CSP allows that host only then.
 
 ## Consequences
 
-- Without the key the facade returns early: no SDK download, no request, no console output. Nothing changes for the existing deployments until the variable is set.
+- Without the key the facade returns early: no SDK download, no request, no console output, and no `/ingest` route. Nothing changes for the existing deployments until the variable is set.
 - No cookies and no storage, so no consent banner. The cost is no cross-day identity, which this product does not need.
 - Code, titles, prompts, provider keys and import links are never sent, so the promise that user data stays in the browser still holds; the README's data flow table says so.
 - Blockers that filter by domain do not drop the proxied traffic; those that block `/ingest` paths may, which is acceptable.
