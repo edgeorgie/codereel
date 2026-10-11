@@ -42,16 +42,19 @@ sequenceDiagram
 | `lib/html.ts` | HTML serialization and parsing |
 | `lib/github.ts` | URL parsing and fetching snippets |
 | `lib/promptScene.ts` | Prompt and tolerant reply parsing |
-| `components/` | Player, panels |
+| `lib/analytics.ts` | Analytics facade: no-op without a key, cookieless, allowlisted events with bucketed properties |
+| `components/` | Player, panels, manual pageview |
 | `app/page.tsx` | Studio layout and state |
+| `instrumentation-client.ts` | Starts the analytics SDK on idle, only when a key exists |
 
 ## Principles
 
 - Pure logic lives in `lib/` and is tested without a browser; components stay thin.
 - Network, storage and model replies are validated at the boundary.
-- Secrets and user content stay in the browser.
+- Secrets and user content stay in the browser. Analytics, when a deployment enables it, sends only the shape of use.
 
 ## Decisions
 
 - [Render in the browser with WebCodecs](adr/0001-render-in-the-browser-with-webcodecs.md)
 - [Canvas for output, deterministic by time](adr/0002-canvas-for-output-deterministic-by-time.md)
+- [Cookieless product analytics, off without a key](adr/0003-cookieless-product-analytics.md)

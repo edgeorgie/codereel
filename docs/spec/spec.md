@@ -87,7 +87,18 @@ Status: Verified.
 
 Status: Verified.
 
-- Given the Pages export, then every page carries a Content-Security-Policy meta tag that allows scripts only from the site and from the hashes of its inline scripts, and connections only to the site, api.anthropic.com, api.openai.com, api.github.com and raw.githubusercontent.com.
+- Given the Pages export, then every page carries a Content-Security-Policy meta tag that allows scripts only from the site and from the hashes of its inline scripts, and connections only to the site, api.anthropic.com, api.openai.com, api.github.com and raw.githubusercontent.com, plus the PostHog hosts only when FR-11 is configured for that export.
+
+### FR-11 Product analytics, opt-in per deployment, never user content
+
+Status: Implemented, not verified end to end. Exercised in Chromium against local stand-ins for the PostHog endpoints; not run against a live PostHog project, because no key exists yet.
+
+- Given a build without `NEXT_PUBLIC_POSTHOG_KEY`, then the client output contains no PostHog code (`grep -rli posthog .next/static` is empty, also for the Pages export); and when a page is viewed and the editor is used, no analytics script is downloaded, no analytics request is made and nothing is logged to the console.
+- Given a build with the key, when the page loads, the studio mounts and an export completes, then `$pageview`, `editor_opened` and `video_exported` are sent, every event carrying `app: "codereel"` and `surface: "web"`, and `video_exported` carrying only `aspect` (16:9, 9:16, 1:1 or 4:5), `duration_bucket` (<5s, 5-30s, 30-120s or 120s+) and `fps`.
+- Given any event, then it contains no code, title, prompt, provider key, import link or other free text; the SDK sets no cookies, uses no storage and never identifies a person.
+- Given a Node host, then analytics requests go to `/ingest` on the site's own origin. Given the Pages export, then they go to `NEXT_PUBLIC_POSTHOG_HOST` directly and the CSP allows that host and its assets host only when the variable is set.
+
+Non-goals: autocapture, session replay, feature flags, surveys, error tracking, cross-day identity, a server-side analytics path.
 
 ## Open risks
 
