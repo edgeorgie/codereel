@@ -12,6 +12,7 @@ Work items in the order they landed. Each links to the pull request that carries
 | T-6 Import from GitHub | [#7](https://github.com/edgeorgie/codereel/pull/7) | `feature/github-import` | FR-7 | Merged |
 | T-7 Studio redesign with morphing stage | [#9](https://github.com/edgeorgie/codereel/pull/9) | `feature/studio-redesign` | FR-4 | Merged |
 | T-8 Production readiness | [#10](https://github.com/edgeorgie/codereel/pull/10) | `feature/production-readiness` | none (quality) | Merged |
-| T-9 Opt-in product analytics, off without a key | [#28](https://github.com/edgeorgie/codereel/pull/28) | `feature/posthog-analytics` | FR-11, FR-10 | In review (draft) |
+| T-9 Opt-in product analytics, off without a key | [#28](https://github.com/edgeorgie/codereel/pull/28) | `feature/posthog-analytics` | FR-11, FR-10 | Merged |
+| T-10 Gate the `/ingest` proxy on the analytics key | [#29](https://github.com/edgeorgie/codereel/pull/29) | `fix/gate-ingest-proxy` | FR-11 | In review (draft) |
 
 New work starts in `spec.md`, then adds a row here before code.
