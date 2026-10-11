@@ -96,7 +96,8 @@ Status: Implemented, not verified end to end. Exercised in Chromium against loca
 - Given a build without `NEXT_PUBLIC_POSTHOG_KEY`, then the client output contains no PostHog code (`grep -rli posthog .next/static` is empty, also for the Pages export); and when a page is viewed and the editor is used, no analytics script is downloaded, no analytics request is made and nothing is logged to the console.
 - Given a build with the key, when the page loads, the studio mounts and an export completes, then `$pageview`, `editor_opened` and `video_exported` are sent, every event carrying `app: "codereel"` and `surface: "web"`, and `video_exported` carrying only `aspect` (16:9, 9:16, 1:1 or 4:5), `duration_bucket` (<5s, 5-30s, 30-120s or 120s+) and `fps`.
 - Given any event, then it contains no code, title, prompt, provider key, import link or other free text; the SDK sets no cookies, uses no storage and never identifies a person.
-- Given a Node host, then analytics requests go to `/ingest` on the site's own origin. Given the Pages export, then they go to `NEXT_PUBLIC_POSTHOG_HOST` directly and the CSP allows that host and its assets host only when the variable is set.
+- Given a Node host and a key, then analytics requests go to `/ingest` on the site's own origin and are proxied to PostHog's ingestion hosts only. Given the Pages export, then they go to `NEXT_PUBLIC_POSTHOG_HOST` directly and the CSP allows that host and its assets host only when the variable is set.
+- Given a build without the key, then the `/ingest` route is not registered: a request to `/ingest/*` on a Node host returns 404 and is not forwarded anywhere. A rewrite is a server-side route that exists whether or not a client calls it, so an ungated one would relay any request body to PostHog's public ingestion API from this origin.
 
 Non-goals: autocapture, session replay, feature flags, surveys, error tracking, cross-day identity, a server-side analytics path.
 

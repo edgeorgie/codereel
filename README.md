@@ -71,7 +71,7 @@ Open http://localhost:3000. No environment variables are required; the only ones
 | GitHub import URL | Public raw file and API requests | Not stored |
 | Usage analytics (optional) | PostHog, only when the deployment sets `NEXT_PUBLIC_POSTHOG_KEY`, through the site's own origin on Vercel | No cookies or storage. Events are page views, editor opens and exports with the format, a duration bucket and the frame rate; never code, titles, prompts, keys or links |
 
-A model reply is parsed as JSON and validated; its text is drawn on a canvas, never inserted as HTML. The only prompt is the user's own description. Without an analytics key the analytics code is a no-op and the SDK is never downloaded ([ADR 0003](docs/adr/0003-cookieless-product-analytics.md)).
+A model reply is parsed as JSON and validated; its text is drawn on a canvas, never inserted as HTML. The only prompt is the user's own description. Without an analytics key the analytics code is a no-op, the SDK is never downloaded and the `/ingest` proxy route is not registered ([ADR 0003](docs/adr/0003-cookieless-product-analytics.md)).
 
 ## Limits
 
@@ -110,7 +110,7 @@ Analytics is off until `NEXT_PUBLIC_POSTHOG_KEY` (a PostHog project token, publi
 | Variable | Vercel or Node host | GitHub Pages |
 |---|---|---|
 | `NEXT_PUBLIC_POSTHOG_KEY` | Set it in the project's environment variables | Set it in the shell that runs `npm run deploy:pages` |
-| `NEXT_PUBLIC_POSTHOG_HOST` | Leave unset: events go through the same-origin `/ingest` rewrite | Required with the key, for example `https://us.i.posthog.com`: a static export cannot proxy, and the page's CSP allows that host only when it is set |
+| `NEXT_PUBLIC_POSTHOG_HOST` | Leave unset: events go through the same-origin `/ingest` rewrite, which is registered only when the key is set | Required with the key, for example `https://us.i.posthog.com`: a static export cannot proxy, and the page's CSP allows that host only when it is set |
 
 In the PostHog project, enable cookieless mode (otherwise cookieless events are dropped) and turn on "Discard client IP data" (the client-side `ip` option is deprecated and does nothing). The key is read at build time, so changing it needs a new build.
 
