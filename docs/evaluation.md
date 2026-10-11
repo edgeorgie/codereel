@@ -12,7 +12,7 @@ A self-assessment against a reviewer's rubric. It states gaps plainly so a revie
 | Documentation structure | Pass | Index, architecture with diagrams, glossary and design system. |
 | Agent readiness | Pass | AGENTS.md, llms.txt, machine-readable requirements and a deterministic gate. There is no MCP server or OpenAPI document because the app is client-side. |
 | LLM integration safety | Partial | A model reply is parsed as JSON and validated; its text is drawn on a canvas, never inserted as HTML. The only prompt is the user's own description. |
-| Privacy and data flow | Pass | Every data path and its storage is tabulated in the README. |
+| Privacy and data flow | Pass | Every data path and its storage is tabulated in the README. Analytics is off unless a deployment sets a key, is cookieless and sends no user content (ADR 0003). |
 | Accessibility | Partial | The canvas preview has no text alternative; controls are labeled and keyboard reachable. Not audited with automated tooling. |
 | Performance | Partial | Frame drawing is synchronous per frame; long compositions use more memory, bounded by the 60 second cap. Not measured with Lighthouse. |
 | Security | Partial | The key lives in sessionStorage by default and in localStorage only if the user opts in. Baseline security headers are set on a Node host. The Pages export carries a CSP meta tag (headers and frame-ancestors are not possible on Pages). |

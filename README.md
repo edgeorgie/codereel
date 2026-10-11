@@ -58,7 +58,7 @@ npm ci
 npm run dev
 ```
 
-Open http://localhost:3000. There are no environment variables. For the prompt feature, open the **AI** tab, choose a provider and paste your own key; it stays in your browser.
+Open http://localhost:3000. No environment variables are required; the only ones that exist turn on optional analytics (see [Deployment](#deployment) and `.env.example`). For the prompt feature, open the **AI** tab, choose a provider and paste your own key; it stays in your browser.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fedgeorgie%2Fcodereel)
 
@@ -69,8 +69,9 @@ Open http://localhost:3000. There are no environment variables. For the prompt f
 | Code and titles | Stay in the browser | Not stored |
 | Provider key | Sent only to the chosen provider | `sessionStorage` by default; `localStorage` only if you choose to remember it on this device |
 | GitHub import URL | Public raw file and API requests | Not stored |
+| Usage analytics (optional) | PostHog, only when the deployment sets `NEXT_PUBLIC_POSTHOG_KEY`, through the site's own origin on Vercel | No cookies or storage. Events are page views, editor opens and exports with the format, a duration bucket and the frame rate; never code, titles, prompts, keys or links |
 
-A model reply is parsed as JSON and validated; its text is drawn on a canvas, never inserted as HTML. The only prompt is the user's own description.
+A model reply is parsed as JSON and validated; its text is drawn on a canvas, never inserted as HTML. The only prompt is the user's own description. Without an analytics key the analytics code is a no-op and the SDK is never downloaded ([ADR 0003](docs/adr/0003-cookieless-product-analytics.md)).
 
 ## Limits
 
@@ -101,6 +102,17 @@ The app is fully client-side, so it can be hosted as static files.
 
 - **GitHub Pages:** `npm run deploy:pages` builds a static export and publishes it to the `gh-pages` branch. Enable Pages from that branch; on a free plan the repository must be public.
 - **Vercel or any Node host:** use the Deploy button above. No configuration is needed.
+
+### Analytics (optional)
+
+Analytics is off until `NEXT_PUBLIC_POSTHOG_KEY` (a PostHog project token, public by design) is set at build time. It is cookieless, respects Do Not Track and sends no user content.
+
+| Variable | Vercel or Node host | GitHub Pages |
+|---|---|---|
+| `NEXT_PUBLIC_POSTHOG_KEY` | Set it in the project's environment variables | Set it in the shell that runs `npm run deploy:pages` |
+| `NEXT_PUBLIC_POSTHOG_HOST` | Leave unset: events go through the same-origin `/ingest` rewrite | Required with the key, for example `https://us.i.posthog.com`: a static export cannot proxy, and the page's CSP allows that host only when it is set |
+
+In the PostHog project, enable cookieless mode (otherwise cookieless events are dropped) and turn on "Discard client IP data" (the client-side `ip` option is deprecated and does nothing). The key is read at build time, so changing it needs a new build.
 
 ## Key concepts
 
