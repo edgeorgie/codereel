@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import AiPanel from "@/components/AiPanel";
 import ImportPanel from "@/components/ImportPanel";
 import Player from "@/components/Player";
+import { exportProperties, track } from "@/lib/analytics";
 import { canExportMp4, exportMp4 } from "@/lib/export";
 import { THEMES } from "@/lib/render";
 import { ASPECTS, compositionDuration, snippetComposition, validate } from "@/lib/scene";
@@ -37,6 +38,11 @@ export default function Home() {
     Promise.resolve().then(() => setSupported(canExportMp4()));
   }, []);
 
+  // The studio is the editor: one event per load, with no properties, so the funnel to an export can be counted.
+  useEffect(() => {
+    track("editor_opened");
+  }, []);
+
   const comp = useMemo(() => snippetComposition(code, { lang, title, aspect, theme, charsPerSecond: speed }), [code, lang, title, aspect, theme, speed]);
   const errors = validate(comp);
   const preset = ASPECTS.find((a) => a.key === aspect) ?? ASPECTS[0];
@@ -48,6 +54,7 @@ export default function Home() {
     setProgress(0);
     try {
       const blob = await exportMp4(comp, setProgress);
+      track("video_exported", { ...exportProperties(comp, preset) });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;

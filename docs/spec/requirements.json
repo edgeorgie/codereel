@@ -151,7 +151,7 @@
     "title": "Content Security Policy on the static export",
     "status": "Verified",
     "acceptance": [
-      "Given the Pages export, then every page carries a Content-Security-Policy meta tag that allows scripts only from the site and from the hashes of its inline scripts, and connections only to the site, api.anthropic.com, api.openai.com, api.github.com and raw.githubusercontent.com."
+      "Given the Pages export, then every page carries a Content-Security-Policy meta tag that allows scripts only from the site and from the hashes of its inline scripts, and connections only to the site, api.anthropic.com, api.openai.com, api.github.com and raw.githubusercontent.com, plus the PostHog hosts only when FR-11 is configured for that export."
     ],
     "implementation": [
       "scripts/csp.mjs",
@@ -161,5 +161,31 @@
       "tests/csp.test.ts"
     ],
     "evidence": "Hash and policy tests; published site checked in Chrome after deploy (SEC-001)."
+  },
+  {
+    "id": "FR-11",
+    "title": "Product analytics, opt-in per deployment, never user content",
+    "status": "Implemented, not verified end to end",
+    "acceptance": [
+      "Given a build without NEXT_PUBLIC_POSTHOG_KEY, then the client output contains no PostHog code (grep -rli posthog .next/static is empty, also for the Pages export); and when a page is viewed and the editor is used, no analytics script is downloaded, no analytics request is made and nothing is logged to the console.",
+      "Given a build with the key, when the page loads, the studio mounts and an export completes, then $pageview, editor_opened and video_exported are sent, every event carrying app \"codereel\" and surface \"web\", and video_exported carrying only aspect (16:9, 9:16, 1:1 or 4:5), duration_bucket (<5s, 5-30s, 30-120s or 120s+) and fps.",
+      "Given any event, then it contains no code, title, prompt, provider key, import link or other free text; the SDK sets no cookies, uses no storage and never identifies a person.",
+      "Given a Node host, then analytics requests go to /ingest on the site's own origin. Given the Pages export, then they go to NEXT_PUBLIC_POSTHOG_HOST directly and the CSP allows that host and its assets host only when the variable is set."
+    ],
+    "implementation": [
+      "lib/analytics.ts",
+      "components/Analytics.tsx",
+      "instrumentation-client.ts",
+      "app/page.tsx",
+      "app/layout.tsx",
+      "next.config.ts",
+      "scripts/csp.mjs",
+      "scripts/deploy-pages.mjs"
+    ],
+    "tests": [
+      "tests/analytics.test.ts",
+      "tests/csp.test.ts"
+    ],
+    "evidence": "Chromium against local stand-ins for the PostHog endpoints: with a placeholder key editor_opened, $pageview and video_exported (all four formats) arrive at /ingest with app and surface and no cookies or storage; without a key no analytics request, no console output and no PostHog code in .next/static or the Pages export. The encoder was stubbed for the export check because the test browser has no H.264. Not run against a live PostHog project."
   }
 ]

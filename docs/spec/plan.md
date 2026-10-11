@@ -14,13 +14,16 @@ Editor state produces a composition. The player and the exporter both call the s
 | `lib/html.ts` | HTML serialization and parsing |
 | `lib/github.ts` | URL parsing and fetching snippets |
 | `lib/promptScene.ts` | Prompt and tolerant reply parsing |
-| `components/` | Player, panels |
+| `lib/analytics.ts` | Analytics facade: no-op without a key, cookieless, allowlisted events with bucketed properties |
+| `components/` | Player, panels, manual pageview |
 | `app/page.tsx` | Studio layout and state |
+| `instrumentation-client.ts` | Starts the analytics SDK on idle, only when a key exists |
 
 ## Decisions
 
 - [ADR 0001: Render in the browser with WebCodecs](../adr/0001-render-in-the-browser-with-webcodecs.md)
 - [ADR 0002: Canvas for output, deterministic by time](../adr/0002-canvas-for-output-deterministic-by-time.md)
+- [ADR 0003: Cookieless product analytics, off without a key](../adr/0003-cookieless-product-analytics.md)
 
 ## Quality gates
 

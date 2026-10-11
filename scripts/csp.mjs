@@ -13,10 +13,23 @@ export function inlineScriptHashes(html) {
   return [...hashes];
 }
 
-export function buildPolicy(hashes, connect = []) {
+/**
+ * Origins the static export must allow when analytics talks to PostHog directly
+ * (there is no proxy on Pages). The SDK posts events to the ingest host and
+ * lazy-loads its extension scripts from the sibling assets host
+ * (us.i.posthog.com -> us-assets.i.posthog.com). Without a host nothing is
+ * allowed, which is also when nothing is sent.
+ */
+export function posthogOrigins(host) {
+  if (!host) return { connect: [], script: [] };
+  const assets = host.replace(/^(https:\/\/[a-z]+)\.i\.posthog\.com$/, "$1-assets.i.posthog.com");
+  return { connect: assets === host ? [host] : [host, assets], script: [assets] };
+}
+
+export function buildPolicy(hashes, connect = [], script = []) {
   return [
     "default-src 'self'",
-    `script-src 'self' ${hashes.join(" ")}`.trim(),
+    `script-src ${["'self'", ...hashes, ...script].join(" ")}`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "media-src 'self' blob:",
@@ -29,9 +42,9 @@ export function buildPolicy(hashes, connect = []) {
   ].join("; ");
 }
 
-export function addCsp(html, connect = []) {
+export function addCsp(html, connect = [], script = []) {
   const clean = html.replace(CSP_META, "");
-  const policy = buildPolicy(inlineScriptHashes(clean), connect);
+  const policy = buildPolicy(inlineScriptHashes(clean), connect, script);
   const tags = `<meta http-equiv="Content-Security-Policy" content="${policy}"><meta name="referrer" content="strict-origin-when-cross-origin">`;
   if (!/<head[^>]*>/.test(clean)) return clean;
   return clean.replace(/<head[^>]*>/, (open) => open + tags);
@@ -46,10 +59,10 @@ function* htmlFiles(dir) {
 }
 
 /** Static hosts such as GitHub Pages cannot send headers, so the policy ships as a meta tag in every exported page. */
-export function applyCsp(dir, connect = []) {
+export function applyCsp(dir, connect = [], script = []) {
   let count = 0;
   for (const file of htmlFiles(dir)) {
-    writeFileSync(file, addCsp(readFileSync(file, "utf8"), connect));
+    writeFileSync(file, addCsp(readFileSync(file, "utf8"), connect, script));
     count++;
   }
   return count;
