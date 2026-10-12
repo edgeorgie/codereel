@@ -27,7 +27,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^6"
   },
   "description": "Browser-based editor for animated code and devlog videos in 16:9, 9:16, 1:1 and 4:5.",
   "license": "MIT",
